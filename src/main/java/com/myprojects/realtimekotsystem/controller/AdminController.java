@@ -27,8 +27,14 @@ public class AdminController {
             consumes = "application/json"
     )
     @ResponseStatus(HttpStatus.CREATED)
-    public MenuItemDTO postMenu_items(@RequestBody MenuItemDTO menuItemDTO) {
-        return adminService.post_menu_items(menuItemDTO);
+    public ResponseEntity<ApiResponse<MenuItemDTO>> postMenu_items(@RequestBody MenuItemDTO menuItemDTO) {
+        MenuItemDTO saved = adminService.post_menu_items(menuItemDTO);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        saved,
+                        "New menu item added successfully"
+                )
+        );
     }
 
     // TO GET ALL MENU ITEMS

@@ -8,6 +8,7 @@ import com.myprojects.realtimekotsystem.exception.ResourceNotFoundException;
 import com.myprojects.realtimekotsystem.mappers.MenuItemMapper;
 import com.myprojects.realtimekotsystem.repository.Menu_items_Repo;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.Map;
 @Service
 public class AdminService {
 
+    @Autowired
     private Menu_items_Repo menu_items_repo;
 
     @Transactional

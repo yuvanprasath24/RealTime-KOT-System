@@ -27,7 +27,10 @@ public class Menu_items {
     private Double price;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Category category;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private MenuStatus status;
 }
