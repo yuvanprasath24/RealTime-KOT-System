@@ -4,7 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -16,5 +18,6 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    private Date date;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 }

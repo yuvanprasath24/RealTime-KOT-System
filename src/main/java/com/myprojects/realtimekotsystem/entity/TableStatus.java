@@ -2,5 +2,6 @@ package com.myprojects.realtimekotsystem.entity;
 
 public enum TableStatus {
     VACANT,
-    OCCUPIED
+    OCCUPIED,
+    OUT_OF_SERVICE
 }

@@ -1,15 +1,21 @@
 package com.myprojects.realtimekotsystem.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
+@Table(
+        name = "restaurant-tables"
+)
+@Data
 public class Tables {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int table_number;
+
+    @Column(nullable = false)
+    private int tableNumber;
+
     @Enumerated(EnumType.STRING)
     private TableStatus status;
 }

@@ -2,8 +2,11 @@ package com.myprojects.realtimekotsystem.controller;
 
 import com.myprojects.realtimekotsystem.dto.response.ApiResponse;
 import com.myprojects.realtimekotsystem.dto.response.MenuItemDTO;
+import com.myprojects.realtimekotsystem.dto.response.TablesDTO;
 import com.myprojects.realtimekotsystem.entity.Menu_items;
+import com.myprojects.realtimekotsystem.entity.Tables;
 import com.myprojects.realtimekotsystem.service.AdminService;
+import com.myprojects.realtimekotsystem.service.TablesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
