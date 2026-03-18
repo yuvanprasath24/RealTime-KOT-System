@@ -4,6 +4,7 @@ import com.myprojects.realtimekotsystem.dto.response.ApiResponse;
 import com.myprojects.realtimekotsystem.dto.response.MenuItemDTO;
 import com.myprojects.realtimekotsystem.entity.MenuStatus;
 import com.myprojects.realtimekotsystem.entity.Menu_items;
+import com.myprojects.realtimekotsystem.entity.Tables;
 import com.myprojects.realtimekotsystem.exception.ResourceNotFoundException;
 import com.myprojects.realtimekotsystem.mappers.MenuItemMapper;
 import com.myprojects.realtimekotsystem.repository.Menu_items_Repo;
@@ -46,5 +47,11 @@ public class AdminService {
         menu_items_repo.save(menu_items);
 
         return MenuItemMapper.toDto(menu_items);
+    }
+
+    public void deleteMenuItem(Long id) {
+        Menu_items menuItems = menu_items_repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Menu items not found"));
+        menu_items_repo.delete(menuItems);
     }
 }

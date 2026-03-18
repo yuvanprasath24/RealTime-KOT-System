@@ -60,6 +60,7 @@ public class TableController {
         );
     }
 
+    // TO DELETE A TABLE
     @DeleteMapping(
             path = "/{tableNumber}"
     )

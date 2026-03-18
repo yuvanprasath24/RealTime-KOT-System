@@ -71,4 +71,13 @@ public class AdminController {
                 )
         );
     }
+
+    // TO DELETE A TABLE
+    @DeleteMapping(
+            path = "/{id}"
+    )
+    public ResponseEntity<?> deleteMenuItem(@PathVariable Long id) {
+        adminService.deleteMenuItem(id);
+        return ResponseEntity.noContent().build();
+    }
 }

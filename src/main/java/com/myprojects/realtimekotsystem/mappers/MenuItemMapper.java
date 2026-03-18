@@ -9,7 +9,7 @@ public class MenuItemMapper {
 
     public static MenuItemDTO toDto(Menu_items menu_items) {
         MenuItemDTO menuItemDTO = new MenuItemDTO();
-
+        menu_items.setId(menu_items.getId());
         menuItemDTO.setName(menu_items.getName());
         menuItemDTO.setPrice(menu_items.getPrice());
         menuItemDTO.setCategory(menu_items.getCategory());
