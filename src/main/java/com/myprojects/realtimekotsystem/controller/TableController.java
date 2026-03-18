@@ -5,10 +5,10 @@ import com.myprojects.realtimekotsystem.dto.response.TablesDTO;
 import com.myprojects.realtimekotsystem.service.TablesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -32,5 +32,39 @@ public class TableController {
                         "New table added successfully"
                 )
         );
+    }
+
+    // TO GET ALL TABLES
+    @GetMapping()
+    public ResponseEntity<ApiResponse<List<TablesDTO>>> getTables() {
+        List<TablesDTO> reuslt = tablesService.getAllTables();
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        reuslt,
+                        "All tables Information"
+                )
+        );
+    }
+
+    @PatchMapping(
+            path = "/{id}/status",
+            consumes = "application/json"
+    )
+    public ResponseEntity<ApiResponse<TablesDTO>> updateTableStatus(@PathVariable Long id, @RequestBody Map<String, String> tableStatus) {
+        TablesDTO result = tablesService.updateTable(id, tableStatus);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        result,
+                        "Table status updated successfully"
+                )
+        );
+    }
+
+    @DeleteMapping(
+            path = "/{tableNumber}"
+    )
+    public ResponseEntity<?> deleteTable(@PathVariable int tableNumber) {
+        tablesService.deleteTable(tableNumber);
+        return ResponseEntity.noContent().build();
     }
 }

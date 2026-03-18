@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface Tables_Repo extends JpaRepository<Tables, Long> {
+    Tables findByTableNumber(int tableNumber);
 }
