@@ -2,8 +2,6 @@ package com.myprojects.realtimekotsystem.mappers;
 
 import com.myprojects.realtimekotsystem.dto.response.MenuItemDTO;
 import com.myprojects.realtimekotsystem.entity.Menu_items;
-
-
 import java.util.ArrayList;
 import java.util.List;
 

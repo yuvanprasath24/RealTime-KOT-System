@@ -28,10 +28,10 @@ public class AdminController {
     )
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ApiResponse<MenuItemDTO>> postMenu_items(@RequestBody MenuItemDTO menuItemDTO) {
-        MenuItemDTO saved = adminService.post_menu_items(menuItemDTO);
+        MenuItemDTO result = adminService.post_menu_items(menuItemDTO);
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        saved,
+                        result,
                         "New menu item added successfully"
                 )
         );
@@ -39,8 +39,14 @@ public class AdminController {
 
     // TO GET ALL MENU ITEMS
     @GetMapping()
-    public List<MenuItemDTO> getMenu_items() {
-        return adminService.get_menu_items();
+    public ResponseEntity<ApiResponse<List<MenuItemDTO>>> getMenu_items() {
+        List<MenuItemDTO> result = adminService.get_menu_items();
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        result,
+                        "Menu Items retrived"
+                )
+        );
     }
 
     // TO UPDATE THE MENU ITEM STATUS
