@@ -59,11 +59,11 @@ public class AdminController {
             @RequestBody Map<String, String> menuStatus
             ){
 
-        MenuItemDTO updatedMenu = adminService.updateMenuStatus(id, menuStatus);
+        MenuItemDTO result = adminService.updateMenuStatus(id, menuStatus);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        updatedMenu,
+                        result,
                         "Item status updated"
                 )
         );
