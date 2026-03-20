@@ -1,22 +1,30 @@
 package com.myprojects.realtimekotsystem.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Entity
+@Data
 public class Orders {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long tableId;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "table_id",nullable = false)
+    private Tables table;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OrderStatus status;
+
+    private double totalAmount;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -13,7 +13,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(
-        path = "/api/tables"
+        path = "/api/tables",
+        produces = "application/json"
 )
 public class TableController {
 
