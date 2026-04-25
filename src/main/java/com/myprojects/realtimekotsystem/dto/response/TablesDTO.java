@@ -7,7 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TablesDTO {
-
     private int table_number;
     private TableStatus status;
 }

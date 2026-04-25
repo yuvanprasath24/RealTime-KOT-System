@@ -2,7 +2,7 @@ package com.myprojects.realtimekotsystem.entity;
 
 public enum OrderStatus {
     PLACED,
-    PREPARED,
+    COOKING,
     READY,
     SERVED,
     CLOSED,

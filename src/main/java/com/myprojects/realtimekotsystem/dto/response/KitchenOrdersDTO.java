@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 public class KitchenOrdersDTO {
     private Long id;
-    private Tables table;
+    private TablesDTO table;
     private OrderStatus status;
-    private List<OrderItemResponse> orderItem;
+    private List<OrderItemDTO> orderItem;
 }
