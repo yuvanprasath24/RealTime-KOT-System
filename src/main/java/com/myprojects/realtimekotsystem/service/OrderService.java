@@ -40,8 +40,6 @@ public class OrderService {
         orders.setTable(tables);
         orders.setStatus(OrderStatus.PLACED);
 
-        order_Repo.save(orders);
-
         double totalAmount = 0;
 
         for (OrderItemRequest itemRequest : request.getOrderItems()) {
@@ -49,7 +47,7 @@ public class OrderService {
                     .orElseThrow(() -> new RuntimeException("MenuItem not found"));
 
             OrderItems orderItems = new OrderItems();
-            orderItems.setOrders(orders);
+           // orderItems.setOrders(orders);
             orderItems.setMenuItem(menuItems);
             orderItems.setQuantity(itemRequest.getQuantity());
             orderItems.setStatus(OrderItemStatus.PENDING);
@@ -57,7 +55,7 @@ public class OrderService {
 
             totalAmount += menuItems.getPrice() * itemRequest.getQuantity();
 
-            order_Item_Repo.save(orderItems);
+            orders.addOrderItems(orderItems);
         }
 
         orders.setTotalAmount(totalAmount);

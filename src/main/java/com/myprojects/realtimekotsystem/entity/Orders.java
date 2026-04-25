@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,4 +29,17 @@ public class Orders {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItems> orderItems = new ArrayList<>();
+
+    public void addOrderItems(OrderItems orderItem) {
+        orderItems.add(orderItem);
+        orderItem.setOrders(this);
+    }
+
+    public void removeOrderItems(OrderItems orderItem) {
+        orderItems.remove(orderItem);
+        orderItem.setOrders(null);
+    }
 }
