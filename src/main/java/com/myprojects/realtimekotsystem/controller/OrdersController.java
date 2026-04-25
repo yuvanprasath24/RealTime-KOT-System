@@ -2,7 +2,8 @@ package com.myprojects.realtimekotsystem.controller;
 
 import com.myprojects.realtimekotsystem.dto.request.CreateOrderRequest;
 import com.myprojects.realtimekotsystem.dto.response.ApiResponse;
-import com.myprojects.realtimekotsystem.dto.response.KitchenOrdersDTO;
+import com.myprojects.realtimekotsystem.dto.response.CustomerOrdersDTO;
+import com.myprojects.realtimekotsystem.dto.response.OrdersDTO;
 import com.myprojects.realtimekotsystem.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +33,8 @@ public class OrdersController {
     @GetMapping(
             path = "/active"
     )
-    public ResponseEntity<ApiResponse<List<KitchenOrdersDTO>>> getActiveOrdersForKitchen() {
-        List<KitchenOrdersDTO> result = orderService.getActiveOrdersForKitchen();
+    public ResponseEntity<ApiResponse<List<OrdersDTO>>> getActiveOrdersForKitchen() {
+        List<OrdersDTO> result = orderService.getActiveOrdersForKitchen();
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -41,5 +42,19 @@ public class OrdersController {
                 )
         );
     }
+
+    @GetMapping(
+            path = "/{id}/active"
+    )
+    public ResponseEntity<ApiResponse<CustomerOrdersDTO>> getOrdersForCustomer(@PathVariable Long id) {
+        CustomerOrdersDTO result = orderService.getOrdersForCustomer(id);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        result,
+                        "Orders for customer " + id
+                )
+        );
+    }
+
     
 }

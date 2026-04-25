@@ -2,9 +2,12 @@ package com.myprojects.realtimekotsystem.service;
 
 import com.myprojects.realtimekotsystem.dto.request.CreateOrderRequest;
 import com.myprojects.realtimekotsystem.dto.request.OrderItemRequest;
-import com.myprojects.realtimekotsystem.dto.response.KitchenOrdersDTO;
+import com.myprojects.realtimekotsystem.dto.response.CustomerOrdersDTO;
+import com.myprojects.realtimekotsystem.dto.response.OrdersDTO;
 import com.myprojects.realtimekotsystem.entity.*;
+import com.myprojects.realtimekotsystem.exception.ResourceNotFoundException;
 import com.myprojects.realtimekotsystem.mappers.OrdersMappers;
+import com.myprojects.realtimekotsystem.mappers.TablesMapper;
 import com.myprojects.realtimekotsystem.repository.Menu_items_Repo;
 import com.myprojects.realtimekotsystem.repository.Order_Item_Repo;
 import com.myprojects.realtimekotsystem.repository.Order_Repo;
@@ -14,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -74,11 +76,18 @@ public class OrderService {
         return "Success";
     }
 
-    public List<KitchenOrdersDTO> getActiveOrdersForKitchen() {
+    public List<OrdersDTO> getActiveOrdersForKitchen() {
         List<OrderStatus> activeStatus = List.of(OrderStatus.PLACED);
         return order_Repo.findByStatusInOrderByCreatedAtAsc(activeStatus)
                 .stream()
-                .map(mappers::convertToKitchenOrdersDTO)
+                .map(mappers::convertToOrdersDTO)
                 .collect(Collectors.toList());
+    }
+
+    public CustomerOrdersDTO getOrdersForCustomer(Long tableId) {
+        return order_Repo.findFirstByTableIdAndStatusNotOrderByCreatedAtDesc(tableId, OrderStatus.CLOSED)
+                .map(mappers::convertToCustomerOrdersDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("No active order for this table"));
+
     }
 }

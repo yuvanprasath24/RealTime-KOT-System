@@ -2,10 +2,12 @@ package com.myprojects.realtimekotsystem.mappers;
 
 import com.myprojects.realtimekotsystem.dto.response.TablesDTO;
 import com.myprojects.realtimekotsystem.entity.Tables;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class TablesMapper {
 
     public  static TablesDTO toDTO(Tables table){

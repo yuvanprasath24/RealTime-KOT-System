@@ -47,6 +47,7 @@ public class TableController {
         );
     }
 
+    // TO UPDATE TABLE STATUS
     @PatchMapping(
             path = "/{id}/status",
             consumes = "application/json"
