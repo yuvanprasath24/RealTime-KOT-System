@@ -3,6 +3,7 @@ package com.myprojects.realtimekotsystem.service;
 import com.myprojects.realtimekotsystem.dto.request.CreateOrderRequest;
 import com.myprojects.realtimekotsystem.dto.request.OrderItemRequest;
 import com.myprojects.realtimekotsystem.dto.response.CustomerOrdersDTO;
+import com.myprojects.realtimekotsystem.dto.response.OrderStatusDTO;
 import com.myprojects.realtimekotsystem.dto.response.OrdersDTO;
 import com.myprojects.realtimekotsystem.entity.*;
 import com.myprojects.realtimekotsystem.exception.ResourceNotFoundException;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -40,10 +42,14 @@ public class OrderService {
     private OrdersMappers mappers;
 
     @Transactional
-    public String createOrders(CreateOrderRequest request) {
+    public OrdersDTO createOrders(CreateOrderRequest request) {
 
         Tables tables = tables_Repo.findById(request.getTableId())
                 .orElseThrow(() -> new RuntimeException("Table not found"));
+
+        if(tables.getStatus() == TableStatus.OCCUPIED){
+            throw new RuntimeException("Table is occupied");
+        }
 
         Orders orders = new Orders();
         orders.setTable(tables);
@@ -73,7 +79,7 @@ public class OrderService {
 
         Orders savedOrders = order_Repo.save(orders);
 
-        return "Success";
+        return mappers.convertToOrdersDTO(savedOrders);
     }
 
     public List<OrdersDTO> getActiveOrdersForKitchen() {
@@ -89,5 +95,24 @@ public class OrderService {
                 .map(mappers::convertToCustomerOrdersDTO)
                 .orElseThrow(() -> new ResourceNotFoundException("No active order for this table"));
 
+    }
+
+    @Transactional
+    public OrderStatusDTO updateOrderStatus(Long orderId, Map<String, String> orderStatus) {
+
+        OrderStatus status = OrderStatus.valueOf(orderStatus.get("status"));
+        Orders orders = order_Repo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        orders.setStatus(status);
+
+        if(status == OrderStatus.CLOSED) {
+            Tables tables = orders.getTable();
+            if (tables != null) {
+                tables.setStatus(TableStatus.VACANT);
+            }
+        }
+
+        Orders saveOrder = order_Repo.save(orders);
+        return mappers.convertToOrderStatusDTO(saveOrder);
     }
 }

@@ -3,6 +3,7 @@ package com.myprojects.realtimekotsystem.controller;
 import com.myprojects.realtimekotsystem.dto.request.CreateOrderRequest;
 import com.myprojects.realtimekotsystem.dto.response.ApiResponse;
 import com.myprojects.realtimekotsystem.dto.response.CustomerOrdersDTO;
+import com.myprojects.realtimekotsystem.dto.response.OrderStatusDTO;
 import com.myprojects.realtimekotsystem.dto.response.OrdersDTO;
 import com.myprojects.realtimekotsystem.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(
@@ -24,10 +26,15 @@ public class OrdersController {
     @PostMapping(
             consumes = "application/json"
     )
-    public String createOrder(@RequestBody CreateOrderRequest request) {
+    public ResponseEntity<ApiResponse<OrdersDTO>> createOrder(@RequestBody CreateOrderRequest request) {
 
-        String result = orderService.createOrders(request);
-        return result;
+        OrdersDTO result = orderService.createOrders(request);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        result,
+                        "Order created successfully"
+                )
+        );
     }
 
     @GetMapping(
@@ -56,5 +63,18 @@ public class OrdersController {
         );
     }
 
+    @PatchMapping(
+            path = "{id}/status",
+            consumes = "application/json"
+    )
+    public ResponseEntity<ApiResponse<OrderStatusDTO>> updateOrderStatus(@PathVariable Long id, @RequestBody Map<String, String> status) {
+        OrderStatusDTO result = orderService.updateOrderStatus(id, status);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        result,
+                        "Order status updated successfully"
+                )
+        );
+    }
     
 }

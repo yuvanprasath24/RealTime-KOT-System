@@ -1,6 +1,7 @@
 package com.myprojects.realtimekotsystem.mappers;
 
 import com.myprojects.realtimekotsystem.dto.response.CustomerOrdersDTO;
+import com.myprojects.realtimekotsystem.dto.response.OrderStatusDTO;
 import com.myprojects.realtimekotsystem.dto.response.OrdersDTO;
 import com.myprojects.realtimekotsystem.dto.response.OrderItemDTO;
 import com.myprojects.realtimekotsystem.entity.OrderItems;
@@ -48,6 +49,13 @@ public class OrdersMappers {
         OrderItemDTO dto = new OrderItemDTO();
         dto.setMenuItemName(orderItems.getMenuItem().getName());
         dto.setQuantity(orderItems.getQuantity());
+        return dto;
+    }
+
+    public OrderStatusDTO convertToOrderStatusDTO(Orders orders) {
+        OrderStatusDTO dto = new OrderStatusDTO();
+        dto.setOrderId(orders.getId());
+        dto.setOrderStatus(orders.getStatus());
         return dto;
     }
 }
