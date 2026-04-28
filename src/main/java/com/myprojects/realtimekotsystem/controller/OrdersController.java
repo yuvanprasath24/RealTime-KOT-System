@@ -111,5 +111,18 @@ public class OrdersController {
                 )
         );
     }
-    
+
+    // TO CLOSE A ORDER
+    @PatchMapping(
+            path = "{orderId}/close"
+    )
+    public ResponseEntity<ApiResponse<OrdersDTO>> deleteOrder(@PathVariable Long orderId) {
+        OrdersDTO result = orderService.closeOrder(orderId);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        result,
+                        "Order closed successfully"
+                )
+        );
+    }
 }

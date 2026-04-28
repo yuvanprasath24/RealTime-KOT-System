@@ -163,5 +163,20 @@ public class OrderService {
         return mappers.convertToOrdersDTO(savedOrders);
     }
 
+    public OrdersDTO closeOrder(Long orderId) {
+        Orders orders = order_Repo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
 
+        if(orders.getStatus() == OrderStatus.CLOSED) {
+            throw new RuntimeException("Order is already closed");
+        }
+        orders.setStatus(OrderStatus.CLOSED);
+
+        Tables tables = orders.getTable();
+        if(tables != null) {
+            tables.setStatus(TableStatus.VACANT);
+        }
+
+        return mappers.convertToOrdersDTO(order_Repo.save(orders));
+    }
 }
