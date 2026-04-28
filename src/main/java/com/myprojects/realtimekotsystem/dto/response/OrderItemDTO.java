@@ -7,4 +7,5 @@ import lombok.Data;
 public class OrderItemDTO {
     private String menuItemName;
     private int quantity;
+    private OrderItemStatus status;
 }

@@ -4,7 +4,6 @@ public enum OrderStatus {
     PLACED,
     COOKING,
     READY,
-    SERVED,
     CLOSED,
     PAID
 }

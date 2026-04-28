@@ -49,6 +49,7 @@ public class OrdersMappers {
         OrderItemDTO dto = new OrderItemDTO();
         dto.setMenuItemName(orderItems.getMenuItem().getName());
         dto.setQuantity(orderItems.getQuantity());
+        dto.setStatus(orderItems.getStatus());
         return dto;
     }
 

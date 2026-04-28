@@ -115,4 +115,53 @@ public class OrderService {
         Orders saveOrder = order_Repo.save(orders);
         return mappers.convertToOrderStatusDTO(saveOrder);
     }
+
+    @Transactional
+    public OrdersDTO updateOrderItemStatus(Long orderItemId, Map<String, String> orderItemStatus) {
+        OrderItemStatus status = OrderItemStatus.valueOf(orderItemStatus.get("status"));
+
+        OrderItems orderItems = order_Item_Repo.findById(orderItemId)
+                .orElseThrow(() -> new RuntimeException("OrderItem not found"));
+        orderItems.setStatus(status);
+
+        Orders parentOrder = orderItems.getOrders();
+        parentOrder.updateOrderStatusBasedOnItems();
+        return mappers.convertToOrdersDTO(parentOrder);
+    }
+
+    @Transactional
+    public OrdersDTO appendOrders(Long orderId, List<OrderItemRequest> orderItems ) {
+
+        Orders orders = order_Repo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if(orders.getStatus() == OrderStatus.CLOSED) {
+            throw new RuntimeException("Cannot add items to a closed order.");
+        }
+
+        double addtionalAmount = 0;
+
+        for(OrderItemRequest orderItemRequest : orderItems) {
+            Menu_items menuItems = menu_items_Repo.findById(orderItemRequest.getMenuItemId())
+                    .orElseThrow(() -> new RuntimeException("MenuItem not found"));
+
+            OrderItems orderItem = new OrderItems();
+            orderItem.setMenuItem(menuItems);
+            orderItem.setQuantity(orderItemRequest.getQuantity());
+            orderItem.setPriceAtOrderTime(menuItems.getPrice());
+            orderItem.setStatus(OrderItemStatus.PENDING);
+
+            orders.addOrderItems(orderItem);
+
+            addtionalAmount += menuItems.getPrice() * orderItemRequest.getQuantity();
+        }
+
+        orders.setTotalAmount(orders.getTotalAmount()+ addtionalAmount);
+        orders.updateOrderStatusBasedOnItems();
+
+        Orders savedOrders = order_Repo.save(orders);
+        return mappers.convertToOrdersDTO(savedOrders);
+    }
+
+
 }

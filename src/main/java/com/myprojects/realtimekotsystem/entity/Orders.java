@@ -42,4 +42,26 @@ public class Orders {
         orderItems.remove(orderItem);
         orderItem.setOrders(null);
     }
+
+    // TO UPDATE STATUS
+    public void updateOrderStatusBasedOnItems() {
+        if(orderItems == null || orderItems.isEmpty()) return;
+
+        boolean allReady = orderItems.stream()
+                .allMatch(item -> item.getStatus() == OrderItemStatus.READY);
+
+        boolean anyPreparing = orderItems.stream()
+                .anyMatch(orderItem -> orderItem.getStatus() == OrderItemStatus.PREPARING);
+
+//        boolean anyPending = orderItems.stream()
+//                .anyMatch(orderItem -> orderItem.getStatus() == OrderItemStatus.PENDING);
+
+        if(allReady) {
+            this.setStatus(OrderStatus.READY);
+        }else if(anyPreparing) {
+            this.setStatus(OrderStatus.COOKING);
+        }else {
+            this.setStatus(OrderStatus.PLACED);
+        }
+    }
 }
