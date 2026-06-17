@@ -7,9 +7,11 @@ import com.myprojects.realtimekotsystem.entity.Menu_items;
 import com.myprojects.realtimekotsystem.entity.Tables;
 import com.myprojects.realtimekotsystem.service.AdminService;
 import com.myprojects.realtimekotsystem.service.TablesService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.Map;
         path = "/api/menu_items",
         produces = "application/json"
 )
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
 
     @Autowired
@@ -30,8 +33,13 @@ public class AdminController {
             consumes = "application/json"
     )
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ApiResponse<MenuItemDTO>> postMenu_items(@RequestBody MenuItemDTO menuItemDTO) {
-        MenuItemDTO result = adminService.post_menu_items(menuItemDTO);
+    public ResponseEntity<ApiResponse<MenuItemDTO>> postMenu_items(
+            @RequestBody MenuItemDTO menuItemDTO,
+            HttpServletRequest request) {
+
+        Long restaurantId = (Long) request.getAttribute("restaurantId");
+
+        MenuItemDTO result = adminService.post_menu_items(menuItemDTO, restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -42,8 +50,9 @@ public class AdminController {
 
     // TO GET ALL MENU ITEMS
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<MenuItemDTO>>> getMenu_items() {
-        List<MenuItemDTO> result = adminService.get_menu_items();
+    public ResponseEntity<ApiResponse<List<MenuItemDTO>>> getMenu_items(HttpServletRequest request) {
+        Long restaurantId = (Long) request.getAttribute("restaurantId");
+        List<MenuItemDTO> result = adminService.get_menu_items(restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -59,10 +68,11 @@ public class AdminController {
     )
     public ResponseEntity<ApiResponse<MenuItemDTO>> updateMenuStatus(
             @PathVariable Long id,
-            @RequestBody Map<String, String> menuStatus
+            @RequestBody Map<String, String> menuStatus,
+            HttpServletRequest request
             ){
-
-        MenuItemDTO result = adminService.updateMenuStatus(id, menuStatus);
+        Long restaurantId = (Long) request.getAttribute("restaurantId");
+        MenuItemDTO result = adminService.updateMenuStatus(id, menuStatus, restaurantId);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -76,8 +86,9 @@ public class AdminController {
     @DeleteMapping(
             path = "/{id}"
     )
-    public ResponseEntity<?> deleteMenuItem(@PathVariable Long id) {
-        adminService.deleteMenuItem(id);
+    public ResponseEntity<?> deleteMenuItem(@PathVariable Long id, HttpServletRequest request) {
+        Long restaurantId = (Long) request.getAttribute("restaurantId");
+        adminService.deleteMenuItem(id, restaurantId);
         return ResponseEntity.noContent().build();
     }
 }
