@@ -33,4 +33,8 @@ public class Menu_items {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MenuStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id", nullable = false)
+    private Restaurant restaurant;
 }

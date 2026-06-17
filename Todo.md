@@ -1,0 +1,1 @@
+1. Add env file with secret key and use @Value annotation

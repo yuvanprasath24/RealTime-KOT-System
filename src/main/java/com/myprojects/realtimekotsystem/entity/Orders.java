@@ -33,6 +33,14 @@ public class Orders {
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItems> orderItems = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id", nullable = false)
+    private Restaurant restaurant;
+
+
+
+    //Methods
+
     public void addOrderItems(OrderItems orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrders(this);

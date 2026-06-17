@@ -18,4 +18,8 @@ public class Tables {
 
     @Enumerated(EnumType.STRING)
     private TableStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id", nullable = false)
+    private Restaurant restaurant;
 }
