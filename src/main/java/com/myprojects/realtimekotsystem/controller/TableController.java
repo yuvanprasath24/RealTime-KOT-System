@@ -3,6 +3,7 @@ package com.myprojects.realtimekotsystem.controller;
 import com.myprojects.realtimekotsystem.dto.response.ApiResponse;
 import com.myprojects.realtimekotsystem.dto.response.TablesDTO;
 import com.myprojects.realtimekotsystem.service.TablesService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,11 @@ public class TableController {
     @PostMapping(
             consumes = "application/json"
             )
-    public ResponseEntity<ApiResponse<TablesDTO>> addTable(@RequestBody TablesDTO tableDTO) {
-        TablesDTO result = tablesService.addTable(tableDTO);
+    public ResponseEntity<ApiResponse<TablesDTO>> addTable(
+            @RequestBody TablesDTO tableDTO,
+            HttpServletRequest request ) {
+        Long restaurantId = (Long) request.getAttribute("restaurantId");
+        TablesDTO result = tablesService.addTable(tableDTO,restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -37,11 +41,12 @@ public class TableController {
 
     // TO GET ALL TABLES
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<TablesDTO>>> getTables() {
-        List<TablesDTO> reuslt = tablesService.getAllTables();
+    public ResponseEntity<ApiResponse<List<TablesDTO>>> getTables(HttpServletRequest request) {
+        Long restaurantId = (Long) request.getAttribute("restaurantId");
+        List<TablesDTO> result = tablesService.getAllTables(restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        reuslt,
+                        result,
                         "All tables Information"
                 )
         );
@@ -52,8 +57,12 @@ public class TableController {
             path = "/{id}/status",
             consumes = "application/json"
     )
-    public ResponseEntity<ApiResponse<TablesDTO>> updateTableStatus(@PathVariable Long id, @RequestBody Map<String, String> tableStatus) {
-        TablesDTO result = tablesService.updateTable(id, tableStatus);
+    public ResponseEntity<ApiResponse<TablesDTO>> updateTableStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> tableStatus,
+            HttpServletRequest request ) {
+        Long restaurantId = (Long) request.getAttribute("restaurantId");
+        TablesDTO result = tablesService.updateTable(id, tableStatus, restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -66,8 +75,9 @@ public class TableController {
     @DeleteMapping(
             path = "/{tableNumber}"
     )
-    public ResponseEntity<?> deleteTable(@PathVariable int tableNumber) {
-        tablesService.deleteTable(tableNumber);
+    public ResponseEntity<?> deleteTable(@PathVariable int tableNumber, HttpServletRequest request) {
+        Long restaurantId = (Long) request.getAttribute("restaurantId");
+        tablesService.deleteTable(tableNumber, restaurantId);
         return ResponseEntity.noContent().build();
     }
 }
