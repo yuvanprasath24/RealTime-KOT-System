@@ -42,24 +42,35 @@ public class OrderService {
     private OrdersMappers mappers;
 
     @Transactional
-    public OrdersDTO createOrders(CreateOrderRequest request) {
+    public OrdersDTO createOrders(CreateOrderRequest request,Long restaurant_id){
 
         Tables tables = tables_Repo.findById(request.getTableId())
                 .orElseThrow(() -> new RuntimeException("Table not found"));
+
+        if(!tables.getRestaurant().getId().equals(restaurant_id)){
+            throw new RuntimeException("Cross-tenant access violation: Table does not belong to this restaurant");
+        }
 
         if(tables.getStatus() == TableStatus.OCCUPIED){
             throw new RuntimeException("Table is occupied");
         }
 
+        Restaurant restaurant = tables.getRestaurant();
+
         Orders orders = new Orders();
         orders.setTable(tables);
         orders.setStatus(OrderStatus.PLACED);
+        orders.setRestaurant(restaurant);
 
         double totalAmount = 0;
 
         for (OrderItemRequest itemRequest : request.getOrderItems()) {
             Menu_items menuItems = menu_items_Repo.findById(itemRequest.getMenuItemId())
                     .orElseThrow(() -> new RuntimeException("MenuItem not found"));
+
+            if (!menuItems.getRestaurant().getId().equals(restaurant_id)) {
+                throw new RuntimeException("Domain mismatch on item request");
+            }
 
             OrderItems orderItems = new OrderItems();
            // orderItems.setOrders(orders);
@@ -82,28 +93,33 @@ public class OrderService {
         return mappers.convertToOrdersDTO(savedOrders);
     }
 
-    public List<OrdersDTO> getActiveOrdersForKitchen() {
+    public List<OrdersDTO> getActiveOrdersForKitchen(Long restaurantId) {
+
         List<OrderStatus> activeStatus = List.of(OrderStatus.PLACED);
-        return order_Repo.findByStatusInOrderByCreatedAtAsc(activeStatus)
+        return order_Repo.findByRestaurantIdAndStatusInOrderByCreatedAtAsc(restaurantId,activeStatus)
                 .stream()
                 .map(mappers::convertToOrdersDTO)
                 .collect(Collectors.toList());
     }
 
-    public CustomerOrdersDTO getOrdersForCustomer(Long tableId) {
-        return order_Repo.findFirstByTableIdAndStatusNotOrderByCreatedAtDesc(tableId, OrderStatus.CLOSED)
+    public CustomerOrdersDTO getOrdersForCustomer(Long tableId,Long restaurantId) {
+        return order_Repo.findFirstByTableIdAndRestaurantIdAndStatusNotOrderByCreatedAtDesc(tableId, restaurantId ,OrderStatus.CLOSED)
                 .map(mappers::convertToCustomerOrdersDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("No active order for this table"));
+                .orElseThrow(() -> new ResourceNotFoundException("No active operational order found for this table under the current restaurant domain"));
 
     }
 
     @Transactional
-    public OrderStatusDTO updateOrderStatus(Long orderId, Map<String, String> orderStatus) {
+    public OrderStatusDTO updateOrderStatus(Long orderId, Map<String, String> orderStatus,Long restaurantId) {
 
         OrderStatus status = OrderStatus.valueOf(orderStatus.get("status"));
         Orders orders = order_Repo.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         orders.setStatus(status);
+
+        if (!orders.getRestaurant().getId().equals(restaurantId)) {
+            throw new SecurityException("Unauthorized cross-tenant state mutation blocked");
+        }
 
         if(status == OrderStatus.CLOSED) {
             Tables tables = orders.getTable();
@@ -117,23 +133,33 @@ public class OrderService {
     }
 
     @Transactional
-    public OrdersDTO updateOrderItemStatus(Long orderItemId, Map<String, String> orderItemStatus) {
+    public OrdersDTO updateOrderItemStatus(Long orderItemId, Map<String, String> orderItemStatus,Long restaurantId) {
         OrderItemStatus status = OrderItemStatus.valueOf(orderItemStatus.get("status"));
 
         OrderItems orderItems = order_Item_Repo.findById(orderItemId)
                 .orElseThrow(() -> new RuntimeException("OrderItem not found"));
-        orderItems.setStatus(status);
+
 
         Orders parentOrder = orderItems.getOrders();
+        if (parentOrder == null || !parentOrder.getRestaurant().getId().equals(restaurantId)) {
+            throw new SecurityException("Unauthorized manipulation of foreign tenant items blocked");
+        }
+
+        orderItems.setStatus(status);
         parentOrder.updateOrderStatusBasedOnItems();
-        return mappers.convertToOrdersDTO(parentOrder);
+        Orders savedOrder = order_Repo.save(parentOrder);
+        return mappers.convertToOrdersDTO(savedOrder);
     }
 
     @Transactional
-    public OrdersDTO appendOrders(Long orderId, List<OrderItemRequest> orderItems ) {
+    public OrdersDTO appendOrders(Long orderId, List<OrderItemRequest> orderItems ,Long restaurantId) {
 
         Orders orders = order_Repo.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (!orders.getRestaurant().getId().equals(restaurantId)) {
+            throw new SecurityException("Unauthorized access: Order domain mismatch");
+        }
 
         if(orders.getStatus() == OrderStatus.CLOSED) {
             throw new RuntimeException("Cannot add items to a closed order.");
@@ -144,6 +170,10 @@ public class OrderService {
         for(OrderItemRequest orderItemRequest : orderItems) {
             Menu_items menuItems = menu_items_Repo.findById(orderItemRequest.getMenuItemId())
                     .orElseThrow(() -> new RuntimeException("MenuItem not found"));
+
+            if (!menuItems.getRestaurant().getId().equals(restaurantId)) {
+                throw new SecurityException("Security Violation: Appended item does not match the active restaurant domain");
+            }
 
             OrderItems orderItem = new OrderItems();
             orderItem.setMenuItem(menuItems);
@@ -163,9 +193,14 @@ public class OrderService {
         return mappers.convertToOrdersDTO(savedOrders);
     }
 
-    public OrdersDTO closeOrder(Long orderId) {
+    @Transactional
+    public OrdersDTO closeOrder(Long orderId,Long restaurantId  ) {
         Orders orders = order_Repo.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if(!orders.getRestaurant().getId().equals(restaurantId)) {
+            throw new SecurityException("Unauthorized cross-tenant state mutation blocked");
+        }
 
         if(orders.getStatus() == OrderStatus.CLOSED) {
             throw new RuntimeException("Order is already closed");
@@ -173,7 +208,11 @@ public class OrderService {
         orders.setStatus(OrderStatus.CLOSED);
 
         Tables tables = orders.getTable();
+
         if(tables != null) {
+            if(!tables.getRestaurant().getId().equals(restaurantId)) {
+                throw new SecurityException("Unauthorized cross-tenant state mutation blocked");
+            }
             tables.setStatus(TableStatus.VACANT);
         }
 

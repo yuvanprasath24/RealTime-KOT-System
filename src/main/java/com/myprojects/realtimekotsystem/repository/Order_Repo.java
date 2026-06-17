@@ -11,7 +11,12 @@ import java.util.Optional;
 
 @Repository
 public interface Order_Repo extends JpaRepository<Orders, Long> {
-    List<Orders> findByStatusInOrderByCreatedAtAsc(List<OrderStatus> activeStatus);
+    /*
+     List<Orders> findByStatusInOrderByCreatedAtAsc(List<OrderStatus> activeStatus);
+     Optional<Orders> findFirstByTableIdAndStatusNotOrderByCreatedAtDesc(Long tableId, OrderStatus status);
+    */
 
-    Optional<Orders> findFirstByTableIdAndStatusNotOrderByCreatedAtDesc(Long tableId, OrderStatus status);
+    List<Orders> findByRestaurantIdAndStatusInOrderByCreatedAtAsc(Long restaurantId, List<OrderStatus> statuses);
+
+    Optional<Orders> findFirstByTableIdAndRestaurantIdAndStatusNotOrderByCreatedAtDesc(Long tableId, Long restaurantId, OrderStatus status);
 }

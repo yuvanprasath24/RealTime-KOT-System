@@ -7,6 +7,8 @@ import com.myprojects.realtimekotsystem.dto.response.CustomerOrdersDTO;
 import com.myprojects.realtimekotsystem.dto.response.OrderStatusDTO;
 import com.myprojects.realtimekotsystem.dto.response.OrdersDTO;
 import com.myprojects.realtimekotsystem.service.OrderService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +30,11 @@ public class OrdersController {
     @PostMapping(
             consumes = "application/json"
     )
-    public ResponseEntity<ApiResponse<OrdersDTO>> createOrder(@RequestBody CreateOrderRequest request) {
-
-        OrdersDTO result = orderService.createOrders(request);
+    public ResponseEntity<ApiResponse<OrdersDTO>> createOrder(
+            @RequestBody CreateOrderRequest request,
+            HttpServletRequest httpServletRequest) {
+        Long restaurantId = (Long)  httpServletRequest.getAttribute("restaurantId");
+        OrdersDTO result = orderService.createOrders(request,restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -43,8 +47,9 @@ public class OrdersController {
     @GetMapping(
             path = "/active"
     )
-    public ResponseEntity<ApiResponse<List<OrdersDTO>>> getActiveOrdersForKitchen() {
-        List<OrdersDTO> result = orderService.getActiveOrdersForKitchen();
+    public ResponseEntity<ApiResponse<List<OrdersDTO>>> getActiveOrdersForKitchen(HttpServletRequest httpServletRequest) {
+        Long restaurantId = (Long) httpServletRequest.getAttribute("restaurantId");
+        List<OrdersDTO> result = orderService.getActiveOrdersForKitchen(restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -57,8 +62,11 @@ public class OrdersController {
     @GetMapping(
             path = "/{id}/active"
     )
-    public ResponseEntity<ApiResponse<CustomerOrdersDTO>> getOrdersForCustomer(@PathVariable Long id) {
-        CustomerOrdersDTO result = orderService.getOrdersForCustomer(id);
+    public ResponseEntity<ApiResponse<CustomerOrdersDTO>> getOrdersForCustomer(
+            @PathVariable Long id,
+            HttpServletRequest httpServletRequest) {
+        Long restaurantId = (Long) httpServletRequest.getAttribute("restaurantId");
+        CustomerOrdersDTO result = orderService.getOrdersForCustomer(id, restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -72,8 +80,12 @@ public class OrdersController {
             path = "{id}/status",
             consumes = "application/json"
     )
-    public ResponseEntity<ApiResponse<OrderStatusDTO>> updateOrderStatus(@PathVariable Long id, @RequestBody Map<String, String> status) {
-        OrderStatusDTO result = orderService.updateOrderStatus(id, status);
+    public ResponseEntity<ApiResponse<OrderStatusDTO>> updateOrderStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> status,
+            HttpServletRequest httpServletRequest) {
+        Long restaurantId = (Long) httpServletRequest.getAttribute("restaurantId");
+        OrderStatusDTO result = orderService.updateOrderStatus(id, status,restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -87,8 +99,12 @@ public class OrdersController {
             path = "orderItem/{id}/status",
             consumes = "application/json"
     )
-    public ResponseEntity<ApiResponse<OrdersDTO>> updateOrderItemStatus(@PathVariable Long id, @RequestBody Map<String, String> status) {
-        OrdersDTO result = orderService.updateOrderItemStatus(id, status);
+    public ResponseEntity<ApiResponse<OrdersDTO>> updateOrderItemStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> status,
+            HttpServletRequest httpServletRequest) {
+        Long restaurantId = (Long) httpServletRequest.getAttribute("restaurantId");
+        OrdersDTO result = orderService.updateOrderItemStatus(id, status,restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -102,8 +118,12 @@ public class OrdersController {
             path = "{orderId}/append",
             consumes = "application/json"
     )
-    public ResponseEntity<ApiResponse<OrdersDTO>> appendOrder(@PathVariable Long orderId, @RequestBody List<OrderItemRequest> orderItems) {
-        OrdersDTO result = orderService.appendOrders(orderId, orderItems);
+    public ResponseEntity<ApiResponse<OrdersDTO>> appendOrder(
+            @PathVariable Long orderId,
+            @RequestBody List<OrderItemRequest> orderItems,
+            HttpServletRequest httpServletRequest) {
+        Long restaurantId = (Long) httpServletRequest.getAttribute("restaurantId");
+        OrdersDTO result = orderService.appendOrders(orderId, orderItems,restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -116,8 +136,11 @@ public class OrdersController {
     @PatchMapping(
             path = "{orderId}/close"
     )
-    public ResponseEntity<ApiResponse<OrdersDTO>> deleteOrder(@PathVariable Long orderId) {
-        OrdersDTO result = orderService.closeOrder(orderId);
+    public ResponseEntity<ApiResponse<OrdersDTO>> deleteOrder(
+            @PathVariable Long orderId,
+            HttpServletRequest httpServletRequest) {
+        Long restaurantId = (Long) httpServletRequest.getAttribute("restaurantId");
+        OrdersDTO result = orderService.closeOrder(orderId, restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
