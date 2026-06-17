@@ -23,12 +23,12 @@ public class SecurityConfig {
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                                 .requestMatchers("/api/menu_items/**").permitAll()
                                 .requestMatchers("/api/orders/**","/api/tables/**").authenticated()
                         .anyRequest().authenticated()
                         )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 
