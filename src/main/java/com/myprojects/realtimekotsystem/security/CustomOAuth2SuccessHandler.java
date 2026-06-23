@@ -45,7 +45,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         String token = jwtUtils.generateToken(user.getEmail(), user.getRole(), restaurantId);
 
         // 3. Build Redirect URL targeting the React local server
-        String targetUrl = "http://localhost:5173/dashboard?token=" + token;
+        String targetUrl = "http://localhost:5173/oauth2/redirect?token=" + token;
 
         if (restaurantId == null) {
             targetUrl += "&setup=true"; // Signals React to display onboarding panel
