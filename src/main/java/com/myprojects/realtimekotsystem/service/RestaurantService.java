@@ -40,4 +40,10 @@ public class RestaurantService {
 
         return Map.of("token", freshToken);
     }
+
+    public String getUserName(String email) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getUsername();
+    }
 }

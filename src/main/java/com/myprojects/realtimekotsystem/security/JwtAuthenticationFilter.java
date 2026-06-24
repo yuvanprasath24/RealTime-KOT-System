@@ -59,6 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             List.of(authority)
                     );
 
+                    request.setAttribute("email", userEmail);
                     // Crucial step: attach restaurantId request-scoped attribute to extract inside endpoints easily
                     request.setAttribute("restaurantId", restaurantId);
 

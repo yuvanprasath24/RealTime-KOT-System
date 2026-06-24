@@ -37,8 +37,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                                .requestMatchers("/api/menu_items/**").permitAll()
-                                .requestMatchers("/api/orders/**","/api/tables/**").authenticated()
+                                .requestMatchers("/api/menu_items/all").permitAll()
+                                .requestMatchers(
+                                        "/api/orders/**",
+                                        "/api/tables/**",
+                                        "/api/restaurant/**",
+                                        "/api/menu_items/addMenu"
+                                ).authenticated()
+
                         .anyRequest().authenticated()
                         )
                 .oauth2Login(
@@ -50,7 +56,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Your React local port
+        configuration.setAllowedOrigins(List.of("http://localhost:5173/")); // Your React local port
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
