@@ -46,7 +46,6 @@ public class RestaurantController {
     public ResponseEntity<ApiResponse<String>> getUserName(HttpServletRequest request){
         String email = (String) request.getAttribute("email");
         String result = restaurantService.getUserName(email);
-        System.out.println(result);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,

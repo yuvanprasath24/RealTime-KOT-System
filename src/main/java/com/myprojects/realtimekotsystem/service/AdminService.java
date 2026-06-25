@@ -48,7 +48,7 @@ public class AdminService {
     @Transactional
     public MenuItemDTO updateMenuStatus(Long id, Map<String, String> menuStatus, Long restaurant_id) {
 
-        MenuStatus status = MenuStatus.valueOf(menuStatus.get("status"));
+        MenuStatus status = MenuStatus.valueOf(menuStatus.get("menuStatus"));
 
         Menu_items menu_items = menu_items_repo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Menu items not found"));
@@ -68,5 +68,20 @@ public class AdminService {
             throw new RuntimeException("Restaurant Profile Could Not Found");
         }
         menu_items_repo.delete(menuItems);
+    }
+
+    @Transactional
+    public MenuItemDTO updateMenu_items(Long id, MenuItemDTO menuItemDTO, Long restaurantId) {
+        Menu_items menu_items = menu_items_repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Menu items not found"));
+
+        if(!menu_items.getRestaurant().getId().equals(restaurantId)) {
+            throw new RuntimeException("Restaurant Profile Could Not Found");
+        }
+        menu_items.setName(menuItemDTO.getName());
+        menu_items.setPrice(menuItemDTO.getPrice());
+        menu_items.setCategory(menuItemDTO.getCategory());
+        menu_items.setStatus(menuItemDTO.getMenuStatus());
+        return MenuItemMapper.toDto(menu_items_repo.save(menu_items));
     }
 }

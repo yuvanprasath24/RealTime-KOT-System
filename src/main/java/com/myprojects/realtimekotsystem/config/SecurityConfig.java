@@ -42,7 +42,7 @@ public class SecurityConfig {
                                         "/api/orders/**",
                                         "/api/tables/**",
                                         "/api/restaurant/**",
-                                        "/api/menu_items/addMenu"
+                                        "/api/menu_items/**"
                                 ).authenticated()
 
                         .anyRequest().authenticated()

@@ -85,9 +85,29 @@ public class AdminController {
         );
     }
 
+    // TO UPDATE THE EXISTING MENU ITEM
+    @PutMapping(
+            path = "/{id}/update",
+            consumes = "application/json"
+    )
+    public ResponseEntity<ApiResponse<MenuItemDTO>> updateMenu_items(
+            @PathVariable Long id,
+            @RequestBody MenuItemDTO menuItemDTO,
+            HttpServletRequest request
+    ){
+        Long restaurantId = (Long) request.getAttribute("restaurantId");
+        MenuItemDTO result = adminService.updateMenu_items(id, menuItemDTO, restaurantId);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        result,
+                        "Item updated"
+                )
+        );
+    }
+
     // TO DELETE A TABLE
     @DeleteMapping(
-            path = "/{id}"
+            path = "/{id}/delete"
     )
     public ResponseEntity<?> deleteMenuItem(@PathVariable Long id, HttpServletRequest request) {
         Long restaurantId = (Long) request.getAttribute("restaurantId");
