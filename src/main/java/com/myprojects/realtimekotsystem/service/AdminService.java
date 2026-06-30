@@ -40,7 +40,7 @@ public class AdminService {
         return MenuItemMapper.toDto(savedMenuItem);
     }
 
-    public List<MenuItemDTO> get_menu_items(Long restaurant_id) {
+    public List<MenuItemDTO> getMenuItems(Long restaurant_id) {
         List<Menu_items> menu_items = menu_items_repo.findByRestaurantId(restaurant_id);
         return MenuItemMapper.toDtoList(menu_items);
     }

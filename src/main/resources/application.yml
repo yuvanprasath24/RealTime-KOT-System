@@ -26,3 +26,7 @@ spring:
             scope:
               - email
               - profile
+
+logging:
+  level:
+    org.springframework.security: DEBUG

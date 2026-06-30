@@ -23,14 +23,11 @@ public class TableController {
     private TablesService tablesService;
 
     // TO ADD TABLES
-    @PostMapping(
-            consumes = "application/json"
-            )
+    @PostMapping()
     public ResponseEntity<ApiResponse<TablesDTO>> addTable(
-            @RequestBody TablesDTO tableDTO,
             HttpServletRequest request ) {
         Long restaurantId = (Long) request.getAttribute("restaurantId");
-        TablesDTO result = tablesService.addTable(tableDTO,restaurantId);
+        TablesDTO result = tablesService.addTable(restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -54,15 +51,15 @@ public class TableController {
 
     // TO UPDATE TABLE STATUS
     @PatchMapping(
-            path = "/{id}/status",
+            path = "/{tableNumber}/status",
             consumes = "application/json"
     )
     public ResponseEntity<ApiResponse<TablesDTO>> updateTableStatus(
-            @PathVariable Long id,
+            @PathVariable int tableNumber,
             @RequestBody Map<String, String> tableStatus,
             HttpServletRequest request ) {
         Long restaurantId = (Long) request.getAttribute("restaurantId");
-        TablesDTO result = tablesService.updateTable(id, tableStatus, restaurantId);
+        TablesDTO result = tablesService.updateTable(tableNumber, tableStatus, restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -73,7 +70,7 @@ public class TableController {
 
     // TO DELETE A TABLE
     @DeleteMapping(
-            path = "/{tableNumber}"
+            path = "/{tableNumber}/delete"
     )
     public ResponseEntity<?> deleteTable(@PathVariable int tableNumber, HttpServletRequest request) {
         Long restaurantId = (Long) request.getAttribute("restaurantId");

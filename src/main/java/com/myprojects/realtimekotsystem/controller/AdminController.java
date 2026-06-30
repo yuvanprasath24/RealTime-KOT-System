@@ -51,11 +51,11 @@ public class AdminController {
 
     // TO GET ALL MENU ITEMS
     @GetMapping(
-            path = "/all"
+            path = "admin/all"
     )
-    public ResponseEntity<ApiResponse<List<MenuItemDTO>>> getMenu_items(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<List<MenuItemDTO>>> getMenuItemsAdmin(HttpServletRequest request) {
         Long restaurantId = (Long) request.getAttribute("restaurantId");
-        List<MenuItemDTO> result = adminService.get_menu_items(restaurantId);
+        List<MenuItemDTO> result = adminService.getMenuItems(restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -63,6 +63,8 @@ public class AdminController {
                 )
         );
     }
+
+
 
     // TO UPDATE THE MENU ITEM STATUS
     @PatchMapping(

@@ -1,6 +1,7 @@
 package com.myprojects.realtimekotsystem.controller;
 
 import com.myprojects.realtimekotsystem.dto.response.ApiResponse;
+import com.myprojects.realtimekotsystem.dto.response.UserResponseDTO;
 import com.myprojects.realtimekotsystem.entity.Restaurant;
 import com.myprojects.realtimekotsystem.entity.User;
 import com.myprojects.realtimekotsystem.repository.RestaurantRepo;
@@ -43,9 +44,9 @@ public class RestaurantController {
     @GetMapping(
             path = "/me"
     )
-    public ResponseEntity<ApiResponse<String>> getUserName(HttpServletRequest request){
+    public ResponseEntity<ApiResponse<UserResponseDTO>> getUserName(HttpServletRequest request){
         String email = (String) request.getAttribute("email");
-        String result = restaurantService.getUserName(email);
+        UserResponseDTO result = restaurantService.getUser(email);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,

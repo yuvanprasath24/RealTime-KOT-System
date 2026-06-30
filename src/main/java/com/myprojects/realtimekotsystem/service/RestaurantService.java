@@ -1,5 +1,6 @@
 package com.myprojects.realtimekotsystem.service;
 
+import com.myprojects.realtimekotsystem.dto.response.UserResponseDTO;
 import com.myprojects.realtimekotsystem.entity.Restaurant;
 import com.myprojects.realtimekotsystem.entity.User;
 import com.myprojects.realtimekotsystem.repository.RestaurantRepo;
@@ -41,9 +42,13 @@ public class RestaurantService {
         return Map.of("token", freshToken);
     }
 
-    public String getUserName(String email) {
+    public UserResponseDTO getUser(String email) {
         User user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return user.getUsername();
+
+        return new UserResponseDTO(
+                user.getUsername(),
+                user.getRestaurant().getId()
+        );
     }
 }
