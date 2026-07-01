@@ -47,6 +47,7 @@ public class OrdersMappers {
 
     public  OrderItemDTO convertToOrderItemDTO(OrderItems orderItems) {
         OrderItemDTO dto = new OrderItemDTO();
+        dto.setId(orderItems.getId());
         dto.setMenuItemName(orderItems.getMenuItem().getName());
         dto.setQuantity(orderItems.getQuantity());
         dto.setStatus(orderItems.getStatus());

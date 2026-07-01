@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class OrderItemDTO {
+    private long id;
     private String menuItemName;
     private int quantity;
     private OrderItemStatus status;

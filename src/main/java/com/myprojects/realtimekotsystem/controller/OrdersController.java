@@ -27,21 +27,21 @@ public class OrdersController {
     private OrderService orderService;
 
     // TO POST NEW ORDERS
-    @PostMapping(
-            consumes = "application/json"
-    )
-    public ResponseEntity<ApiResponse<OrdersDTO>> createOrder(
-            @RequestBody CreateOrderRequest request,
-            HttpServletRequest httpServletRequest) {
-        Long restaurantId = (Long)  httpServletRequest.getAttribute("restaurantId");
-        OrdersDTO result = orderService.createOrders(request,restaurantId);
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        result,
-                        "Order created successfully"
-                )
-        );
-    }
+//    @PostMapping(
+//            consumes = "application/json"
+//    )
+//    public ResponseEntity<ApiResponse<OrdersDTO>> createOrder(
+//            @RequestBody CreateOrderRequest request,
+//            HttpServletRequest httpServletRequest) {
+//        Long restaurantId = (Long)  httpServletRequest.getAttribute("restaurantId");
+//        OrdersDTO result = orderService.createOrders(request,restaurantId);
+//        return ResponseEntity.ok(
+//                ApiResponse.success(
+//                        result,
+//                        "Order created successfully"
+//                )
+//        );
+//    }
 
     // TO GET ALL ACTIVE ORDERS
     @GetMapping(

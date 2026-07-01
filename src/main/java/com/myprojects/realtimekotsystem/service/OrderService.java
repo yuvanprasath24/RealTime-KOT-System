@@ -42,7 +42,7 @@ public class OrderService {
     private OrdersMappers mappers;
 
     @Transactional
-    public OrdersDTO createOrders(CreateOrderRequest request,Long restaurant_id){
+    public CustomerOrdersDTO createOrders(CreateOrderRequest request,Long restaurant_id){
 
         Tables tables = tables_Repo.findById(request.getTableId())
                 .orElseThrow(() -> new RuntimeException("Table not found"));
@@ -84,13 +84,16 @@ public class OrderService {
             orders.addOrderItems(orderItems);
         }
 
-        orders.setTotalAmount(totalAmount);
+        double sGST = totalAmount * 0.025;
+        double cGST = totalAmount * 0.025;
+        double grandTotal = totalAmount + sGST + cGST;
+        orders.setTotalAmount(grandTotal);
 
         tables.setStatus(TableStatus.OCCUPIED);
 
         Orders savedOrders = order_Repo.save(orders);
 
-        return mappers.convertToOrdersDTO(savedOrders);
+        return mappers.convertToCustomerOrdersDTO(savedOrders);
     }
 
     public List<OrdersDTO> getActiveOrdersForKitchen(Long restaurantId) {
