@@ -1,12 +1,11 @@
 package com.myprojects.realtimekotsystem.controller;
 
 import com.myprojects.realtimekotsystem.dto.request.CreateOrderRequest;
-import com.myprojects.realtimekotsystem.dto.response.ApiResponse;
-import com.myprojects.realtimekotsystem.dto.response.CustomerOrdersDTO;
-import com.myprojects.realtimekotsystem.dto.response.MenuItemDTO;
-import com.myprojects.realtimekotsystem.dto.response.OrdersDTO;
+import com.myprojects.realtimekotsystem.dto.response.*;
 import com.myprojects.realtimekotsystem.service.AdminService;
 import com.myprojects.realtimekotsystem.service.OrderService;
+import com.myprojects.realtimekotsystem.service.RestaurantService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +23,22 @@ public class CustomerController {
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private RestaurantService restaurantService;
+
+    // TO GET RESTAURANT
+    @GetMapping(
+            path = "/restaurant"
+    )
+    public ResponseEntity<ApiResponse<RestaurantDTO>> getRestaurantName(@RequestParam Long restaurantID) {
+        RestaurantDTO result = restaurantService.getRestaurant(restaurantID);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        result,
+                        "Restaurant Details"
+                )
+        );
+    }
 
     // TO GET MENU ITEMS
     @GetMapping(
@@ -52,6 +67,38 @@ public class CustomerController {
                 ApiResponse.success(
                         result,
                         "Order created"
+                )
+        );
+    }
+
+    // TO GET ALL ACTIVE ORDERS FOR A CUSTOMER
+    @GetMapping(
+            path = "orders/{tableId}/active"
+    )
+    public ResponseEntity<ApiResponse<CustomerOrdersDTO>> getOrdersForCustomer(
+            @PathVariable Long tableId,
+            @RequestParam Long restaurantID) {
+        CustomerOrdersDTO result = orderService.getOrdersForCustomer(tableId, restaurantID);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        result,
+                        "Orders for customer " + tableId
+                )
+        );
+    }
+
+    // TO CLOSE A ORDER
+    @PatchMapping(
+            path = "{orderId}/close"
+    )
+    public ResponseEntity<ApiResponse<OrdersDTO>> deleteOrder(
+            @PathVariable Long orderId,
+            @RequestParam Long restaurantID) {
+        OrdersDTO result = orderService.closeOrder(orderId, restaurantID);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        result,
+                        "Order closed successfully"
                 )
         );
     }

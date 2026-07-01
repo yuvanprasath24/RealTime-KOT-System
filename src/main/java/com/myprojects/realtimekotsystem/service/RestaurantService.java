@@ -1,5 +1,6 @@
 package com.myprojects.realtimekotsystem.service;
 
+import com.myprojects.realtimekotsystem.dto.response.RestaurantDTO;
 import com.myprojects.realtimekotsystem.dto.response.UserResponseDTO;
 import com.myprojects.realtimekotsystem.entity.Restaurant;
 import com.myprojects.realtimekotsystem.entity.User;
@@ -22,7 +23,7 @@ public class RestaurantService {
     @Autowired
     private JwtUtils jwtUtils;
 
-    public Map<String, String> setupRestaurant(String email, String restaurantName){
+    public Map<String, String> setupRestaurant(String email, String restaurantName, String restaurantAddress) {
         User user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -32,6 +33,7 @@ public class RestaurantService {
 
         Restaurant restaurant = new Restaurant();
         restaurant.setName(restaurantName);
+        restaurant.setAddress(restaurantAddress);
         Restaurant savedRestaurant = restaurantRepo.save(restaurant);
 
         user.setRestaurant(savedRestaurant);
@@ -49,6 +51,15 @@ public class RestaurantService {
         return new UserResponseDTO(
                 user.getUsername(),
                 user.getRestaurant().getId()
+        );
+    }
+
+    public RestaurantDTO getRestaurant(Long restaurantId) {
+        Restaurant restaurant = restaurantRepo.findById(restaurantId)
+                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+        return new RestaurantDTO(
+                restaurant.getName(),
+                restaurant.getAddress()
         );
     }
 }

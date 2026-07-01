@@ -8,5 +8,6 @@ public class OrderItemDTO {
     private long id;
     private String menuItemName;
     private int quantity;
+    private double price;
     private OrderItemStatus status;
 }

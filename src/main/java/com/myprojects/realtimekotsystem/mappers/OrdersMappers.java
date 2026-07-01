@@ -33,7 +33,7 @@ public class OrdersMappers {
         CustomerOrdersDTO dto = new CustomerOrdersDTO();
         dto.setId(orders.getId());
         dto.setStatus(orders.getStatus());
-
+        dto.setCreatedAt(orders.getCreatedAt());
         dto.setTotalAmount(orders.getTotalAmount());
 
         dto.setOrderItem(
@@ -48,6 +48,7 @@ public class OrdersMappers {
     public  OrderItemDTO convertToOrderItemDTO(OrderItems orderItems) {
         OrderItemDTO dto = new OrderItemDTO();
         dto.setId(orderItems.getId());
+        dto.setPrice(orderItems.getPriceAtOrderTime());
         dto.setMenuItemName(orderItems.getMenuItem().getName());
         dto.setQuantity(orderItems.getQuantity());
         dto.setStatus(orderItems.getStatus());

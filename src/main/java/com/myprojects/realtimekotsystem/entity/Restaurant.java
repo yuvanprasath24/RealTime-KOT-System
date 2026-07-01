@@ -19,6 +19,9 @@ public class Restaurant {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String address;
+
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menu_items> menuItems = new ArrayList<>();
 

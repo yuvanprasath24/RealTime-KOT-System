@@ -32,7 +32,7 @@ public class RestaurantController {
     public ResponseEntity<ApiResponse<Map<String, String>>> setupRestaurant(@RequestBody Map<String,String> body, HttpServletRequest request) {
 
         String email = (String) request.getAttribute("email");
-        Map<String, String> result = restaurantService.setupRestaurant(email,body.get("restaurantName"));
+        Map<String, String> result = restaurantService.setupRestaurant(email,body.get("restaurantName"),body.get("restaurantAddress"));
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,

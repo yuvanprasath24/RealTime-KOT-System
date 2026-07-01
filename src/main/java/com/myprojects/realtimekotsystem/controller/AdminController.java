@@ -107,7 +107,7 @@ public class AdminController {
         );
     }
 
-    // TO DELETE A TABLE
+    // TO DELETE A MENU ITEM
     @DeleteMapping(
             path = "/{id}/delete"
     )
