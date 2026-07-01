@@ -3,6 +3,7 @@ package com.myprojects.realtimekotsystem.repository;
 import com.myprojects.realtimekotsystem.entity.Tables;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,6 +15,8 @@ public interface Tables_Repo extends JpaRepository<Tables, Long> {
 
     List<Tables> findByRestaurantId(Long restuarantId);
 
-    @Query("SELECT MAX(t.tableNumber) FROM Tables t")
-    Integer findMaxTableNumber();
+    @Query("SELECT COALESCE(MAX(t.tableNumber), 0) FROM Tables t WHERE t.restaurant.id = :restaurantId")
+    Integer findMaxTableNumberByRestaurantId(@Param("restaurantId") Long restaurantId);
+
+    Integer countByRestaurantId(Long restaurantId);
 }

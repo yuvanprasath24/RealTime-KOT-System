@@ -28,7 +28,7 @@ public class TablesService {
         Restaurant restaurant = restaurant_repo.findById(restaurantId)
                 .orElseThrow(() -> new RuntimeException("Restaurant Profile Could Not Found"));
 
-        Integer maxTableNumber = tables_repo.findMaxTableNumber();
+        Integer maxTableNumber = tables_repo.findMaxTableNumberByRestaurantId(restaurantId);
         int nextTableNumber = (maxTableNumber == null) ? 1 : maxTableNumber + 1;
 
         Tables table = new Tables();
@@ -44,10 +44,10 @@ public class TablesService {
     }
 
     @Transactional
-    public TablesDTO updateTable(int tableNumber, Map<String, String> tableStatus, Long restaurantId) {
+    public TablesDTO updateTable(Long tableId, Map<String, String> tableStatus, Long restaurantId) {
 
         TableStatus status = TableStatus.valueOf(tableStatus.get("status"));
-        Tables table = tables_repo.findByTableNumber(tableNumber)
+        Tables table = tables_repo.findById(tableId)
                 .orElseThrow(() -> new RuntimeException("Table not found"));
 
         if(!table.getRestaurant().getId().equals(restaurantId)) {
@@ -59,8 +59,8 @@ public class TablesService {
     }
 
     @Transactional
-    public void deleteTable(int tableNumber, Long restaurantId) {
-        Tables tables = tables_repo.findByTableNumber(tableNumber)
+    public void deleteTable(Long tableId, Long restaurantId) {
+        Tables tables = tables_repo.findById(tableId)
                 .orElseThrow(() -> new RuntimeException("Table not found"));
         if (tables != null) {
             if(!tables.getRestaurant().getId().equals(restaurantId)) {

@@ -51,15 +51,15 @@ public class TableController {
 
     // TO UPDATE TABLE STATUS
     @PatchMapping(
-            path = "/{tableNumber}/status",
+            path = "/{tableId}/status",
             consumes = "application/json"
     )
     public ResponseEntity<ApiResponse<TablesDTO>> updateTableStatus(
-            @PathVariable int tableNumber,
+            @PathVariable Long tableId,
             @RequestBody Map<String, String> tableStatus,
             HttpServletRequest request ) {
         Long restaurantId = (Long) request.getAttribute("restaurantId");
-        TablesDTO result = tablesService.updateTable(tableNumber, tableStatus, restaurantId);
+        TablesDTO result = tablesService.updateTable(tableId, tableStatus, restaurantId);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         result,
@@ -70,11 +70,11 @@ public class TableController {
 
     // TO DELETE A TABLE
     @DeleteMapping(
-            path = "/{tableNumber}/delete"
+            path = "/{tableId}/delete"
     )
-    public ResponseEntity<?> deleteTable(@PathVariable int tableNumber, HttpServletRequest request) {
+    public ResponseEntity<?> deleteTable(@PathVariable Long tableId, HttpServletRequest request) {
         Long restaurantId = (Long) request.getAttribute("restaurantId");
-        tablesService.deleteTable(tableNumber, restaurantId);
+        tablesService.deleteTable(tableId, restaurantId);
         return ResponseEntity.noContent().build();
     }
 }

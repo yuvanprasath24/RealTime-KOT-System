@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TablesDTO {
+    private Long tableId;
     private int table_number;
     private TableStatus status;
 }

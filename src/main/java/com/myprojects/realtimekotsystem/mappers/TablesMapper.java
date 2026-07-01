@@ -12,7 +12,7 @@ public class TablesMapper {
 
     public  static TablesDTO toDTO(Tables table){
         TablesDTO dto = new TablesDTO();
-
+        dto.setTableId(table.getId());
         dto.setTable_number(table.getTableNumber());
         dto.setStatus(table.getStatus());
 
@@ -21,7 +21,6 @@ public class TablesMapper {
 
     public static Tables toEntity(TablesDTO dto){
         Tables table = new Tables();
-
         table.setTableNumber(dto.getTable_number());
         table.setStatus(dto.getStatus());
         return table;
