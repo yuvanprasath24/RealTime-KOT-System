@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                                 .requestMatchers("/public/api/**").permitAll()
+                                .requestMatchers("/ws-entry/**").permitAll()
                                 .requestMatchers(
                                         "/api/orders/**",
                                         "/api/tables/**",

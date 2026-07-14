@@ -16,6 +16,7 @@ import com.myprojects.realtimekotsystem.repository.Tables_Repo;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +26,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class OrderService {
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     private Order_Repo order_Repo;
@@ -41,17 +45,19 @@ public class OrderService {
     @Autowired
     private OrdersMappers mappers;
 
+
+
     @Transactional
-    public CustomerOrdersDTO createOrders(CreateOrderRequest request,Long restaurant_id){
+    public CustomerOrdersDTO createOrders(CreateOrderRequest request, Long restaurant_id) {
 
         Tables tables = tables_Repo.findById(request.getTableId())
                 .orElseThrow(() -> new RuntimeException("Table not found"));
 
-        if(!tables.getRestaurant().getId().equals(restaurant_id)){
+        if (!tables.getRestaurant().getId().equals(restaurant_id)) {
             throw new RuntimeException("Cross-tenant access violation: Table does not belong to this restaurant");
         }
 
-        if(tables.getStatus() == TableStatus.OCCUPIED){
+        if (tables.getStatus() == TableStatus.OCCUPIED) {
             throw new RuntimeException("Table is occupied");
         }
 
@@ -73,7 +79,7 @@ public class OrderService {
             }
 
             OrderItems orderItems = new OrderItems();
-           // orderItems.setOrders(orders);
+            // orderItems.setOrders(orders);
             orderItems.setMenuItem(menuItems);
             orderItems.setQuantity(itemRequest.getQuantity());
             orderItems.setStatus(OrderItemStatus.PENDING);
@@ -93,27 +99,37 @@ public class OrderService {
 
         Orders savedOrders = order_Repo.save(orders);
 
-        return mappers.convertToCustomerOrdersDTO(savedOrders);
+        CustomerOrdersDTO customerOrdersDTO = mappers.convertToCustomerOrdersDTO(savedOrders);
+
+        OrdersDTO ordersDTO = mappers.convertToOrdersDTO(orders);
+
+        messagingTemplate.convertAndSend("/topic/kitchen/" + restaurant_id, ordersDTO);
+
+        return customerOrdersDTO;
     }
 
     public List<OrdersDTO> getActiveOrdersForKitchen(Long restaurantId) {
 
-        List<OrderStatus> activeStatus = List.of(OrderStatus.PLACED);
-        return order_Repo.findByRestaurantIdAndStatusInOrderByCreatedAtAsc(restaurantId,activeStatus)
+        List<OrderStatus> activeStatus = List.of(
+                OrderStatus.PLACED,
+                OrderStatus.COOKING,
+                OrderStatus.READY
+        );
+        return order_Repo.findByRestaurantIdAndStatusInOrderByCreatedAtAsc(restaurantId, activeStatus)
                 .stream()
                 .map(mappers::convertToOrdersDTO)
                 .collect(Collectors.toList());
     }
 
-    public CustomerOrdersDTO getOrdersForCustomer(Long tableId,Long restaurantId) {
-        return order_Repo.findFirstByTableIdAndRestaurantIdAndStatusNotOrderByCreatedAtDesc(tableId, restaurantId ,OrderStatus.CLOSED)
+    public CustomerOrdersDTO getOrdersForCustomer(Long tableId, Long restaurantId) {
+        return order_Repo.findFirstByTableIdAndRestaurantIdAndStatusNotOrderByCreatedAtDesc(tableId, restaurantId, OrderStatus.CLOSED)
                 .map(mappers::convertToCustomerOrdersDTO)
                 .orElseThrow(() -> new ResourceNotFoundException("No active operational order found for this table under the current restaurant domain"));
 
     }
 
     @Transactional
-    public OrderStatusDTO updateOrderStatus(Long orderId, Map<String, String> orderStatus,Long restaurantId) {
+    public OrderStatusDTO updateOrderStatus(Long orderId, Map<String, String> orderStatus, Long restaurantId) {
 
         OrderStatus status = OrderStatus.valueOf(orderStatus.get("status"));
         Orders orders = order_Repo.findById(orderId)
@@ -124,7 +140,7 @@ public class OrderService {
             throw new SecurityException("Unauthorized cross-tenant state mutation blocked");
         }
 
-        if(status == OrderStatus.CLOSED) {
+        if (status == OrderStatus.CLOSED) {
             Tables tables = orders.getTable();
             if (tables != null) {
                 tables.setStatus(TableStatus.VACANT);
@@ -136,7 +152,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrdersDTO updateOrderItemStatus(Long orderItemId, Map<String, String> orderItemStatus,Long restaurantId) {
+    public OrdersDTO updateOrderItemStatus(Long orderItemId, Map<String, String> orderItemStatus, Long restaurantId) {
         OrderItemStatus status = OrderItemStatus.valueOf(orderItemStatus.get("status"));
 
         OrderItems orderItems = order_Item_Repo.findById(orderItemId)
@@ -151,11 +167,22 @@ public class OrderService {
         orderItems.setStatus(status);
         parentOrder.updateOrderStatusBasedOnItems();
         Orders savedOrder = order_Repo.save(parentOrder);
-        return mappers.convertToOrdersDTO(savedOrder);
+        OrdersDTO savedOrderDTO = mappers.convertToOrdersDTO(savedOrder);
+
+        System.out.println("Publishing update to kitchen topic");
+        System.out.println(savedOrderDTO.getId());
+
+        messagingTemplate.convertAndSend(
+                "/topic/kitchen/" + restaurantId,
+                savedOrderDTO
+        );
+        System.out.println("Publishing to: /topic/kitchen/" + restaurantId);
+        System.out.println(savedOrderDTO);
+        return savedOrderDTO;
     }
 
     @Transactional
-    public OrdersDTO appendOrders(Long orderId, List<OrderItemRequest> orderItems ,Long restaurantId) {
+    public OrdersDTO appendOrders(Long orderId, List<OrderItemRequest> orderItems, Long restaurantId) {
 
         Orders orders = order_Repo.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -164,13 +191,13 @@ public class OrderService {
             throw new SecurityException("Unauthorized access: Order domain mismatch");
         }
 
-        if(orders.getStatus() == OrderStatus.CLOSED) {
+        if (orders.getStatus() == OrderStatus.CLOSED) {
             throw new RuntimeException("Cannot add items to a closed order.");
         }
 
         double addtionalAmount = 0;
 
-        for(OrderItemRequest orderItemRequest : orderItems) {
+        for (OrderItemRequest orderItemRequest : orderItems) {
             Menu_items menuItems = menu_items_Repo.findById(orderItemRequest.getMenuItemId())
                     .orElseThrow(() -> new RuntimeException("MenuItem not found"));
 
@@ -189,7 +216,7 @@ public class OrderService {
             addtionalAmount += menuItems.getPrice() * orderItemRequest.getQuantity();
         }
 
-        orders.setTotalAmount(orders.getTotalAmount()+ addtionalAmount);
+        orders.setTotalAmount(orders.getTotalAmount() + addtionalAmount);
         orders.updateOrderStatusBasedOnItems();
 
         Orders savedOrders = order_Repo.save(orders);
@@ -197,23 +224,23 @@ public class OrderService {
     }
 
     @Transactional
-    public OrdersDTO closeOrder(Long orderId,Long restaurantId  ) {
+    public OrdersDTO closeOrder(Long orderId, Long restaurantId) {
         Orders orders = order_Repo.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        if(!orders.getRestaurant().getId().equals(restaurantId)) {
+        if (!orders.getRestaurant().getId().equals(restaurantId)) {
             throw new SecurityException("Unauthorized cross-tenant state mutation blocked");
         }
 
-        if(orders.getStatus() == OrderStatus.CLOSED) {
+        if (orders.getStatus() == OrderStatus.CLOSED) {
             throw new RuntimeException("Order is already closed");
         }
         orders.setStatus(OrderStatus.CLOSED);
 
         Tables tables = orders.getTable();
 
-        if(tables != null) {
-            if(!tables.getRestaurant().getId().equals(restaurantId)) {
+        if (tables != null) {
+            if (!tables.getRestaurant().getId().equals(restaurantId)) {
                 throw new SecurityException("Unauthorized cross-tenant state mutation blocked");
             }
             tables.setStatus(TableStatus.VACANT);
