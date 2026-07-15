@@ -2,6 +2,7 @@ package com.myprojects.realtimekotsystem.config;
 
 import com.myprojects.realtimekotsystem.security.CustomOAuth2SuccessHandler;
 import com.myprojects.realtimekotsystem.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -51,6 +52,17 @@ public class SecurityConfig {
                 .oauth2Login(
                         oauth -> oauth.successHandler(customOAuth2SuccessHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout(logout -> logout
+                        .logoutUrl("/logout") // The endpoint we hit from React
+                        .clearAuthentication(true)
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID") // Wipes the session cookie
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            // Redirection target back to your React app login layout
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.sendRedirect("http://localhost:5173/login?logout=success");
+                        })
+                )
                 .build();
     }
 
