@@ -3,6 +3,8 @@ package com.myprojects.realtimekotsystem.controller;
 import com.myprojects.realtimekotsystem.dto.response.ApiResponse;
 import com.myprojects.realtimekotsystem.dto.response.TablesDTO;
 import com.myprojects.realtimekotsystem.service.TablesService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-
+@Tag(name = "Tables", description = "Table management APIs")
 @RestController
 @RequestMapping(
         path = "/api/tables",
@@ -23,6 +25,7 @@ public class TableController {
     private TablesService tablesService;
 
     // TO ADD TABLES
+    @Operation(summary = "Create a new table")
     @PostMapping()
     public ResponseEntity<ApiResponse<TablesDTO>> addTable(
             HttpServletRequest request ) {
